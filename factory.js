@@ -13,22 +13,100 @@ function water (description) {
     this.description = description || "cold";
 }
 
-function drinkingFountainsFactory () {}
+function DrinkingFountains () {}
 
-drinkingFountainsFactory.prototype.boilWater = function () {
+DrinkingFountains.prototype.boilWater = function () {
     return new water("boilingWater");
 }
 
-drinkingFountainsFactory.prototype.giveMeFuckingWater = function(type) {
+DrinkingFountains.prototype.frozenWater = function () {
+    return new water("iceWater");
+}
+
+DrinkingFountains.prototype.giveMeFuckingWater = function(type) {
     
     if("hot" === type){
         return this.boilWater();
+    } else if ("cold" === type) {
+        return this.frozenWater();
     }
-    
-    return new water("cold");
 }
 
-var drinkingFountains = new drinkingFountainsFactory();
-var waterOfMine = drinkingFountains.giveMeFuckingWater("hot");
+// var drinkingFountains = new DrinkingFountains();
+// var waterOfMine = drinkingFountains.giveMeFuckingWater("hot");
 
-console.log(waterOfMine);// boilingWater
+// console.log(waterOfMine);// boilingWater
+
+// 简单工厂模式 如上所述 实际上就是根据不同指令 return不同的结果 核心就是包裹一段if else分支成方法
+// 在实际中 用到很多工厂模式 比如react中 根据state不同 return不同的dom 这就属于工厂模式
+
+// 抽象工厂模式
+// 可以理解为定义一个抽象工厂 该工厂根据不同指令生产处不同的具体工厂 每个工厂生产处不同的产品
+
+// 接上面的例子 公司现在需要咖啡机 咖啡机可以生产热咖啡和冷咖啡
+function CoffeeMachine () {}
+
+CoffeeMachine.prototype.mochaCoffceIsGood = function () {
+    return new water("mochaCoffce");
+}
+
+CoffeeMachine.prototype.latteCoffeeIsCool = function () {
+    return new water("latteCoffee");
+}
+
+CoffeeMachine.prototype.giveMeFuckingWater = function(type) {
+    
+    if("mocha" === type){
+        return this.mochaCoffceIsGood();
+    } else if ("latte" === type) {
+        return this.latteCoffeeIsCool();
+    }
+}
+
+// 定义一个抽象工厂 根据顾客需要生产咖啡机还是饮水机
+var AbstractFactory = (function () {
+
+    this.types = {};
+
+    return {
+        getFactory: function (type, customizations) {
+            var Factory = types[type];
+
+            if(!Factory){
+                return undefined;
+            }
+
+            var factory = new Factory();
+
+            return factory.giveMeFuckingWater(customizations);
+        },
+        registerFactory: function (type, Factory) {
+            var proto = Factory.prototype;
+
+            types[type] = Factory;
+
+            return AbstractFactory;
+        }
+    };
+})();
+
+
+// 向工厂中添加可生产的种类
+AbstractFactory.registerFactory("coffee", CoffeeMachine);
+AbstractFactory.registerFactory("water", DrinkingFountains);
+
+// 使用抽象工厂生产处产品
+AbstractFactory.getFactory("coffee", "mocha");// water {description: "mochaCoffce"}
+AbstractFactory.getFactory("water", "cold");// water {description: "iceWater"}
+
+// 可以看到使用抽象工厂可以很方便得到想要的东西 
+// 抽象工厂模式除了具有工厂方法模式的优点外，最主要的优点就是可以在类的内部对产品族进行约束。
+// 所谓的产品族，一般或多或少的都存在一定的关联，抽象工厂模式就可以在类内部对产品族的关联关系进行定义和描述，
+// 而不必专门引入一个新的类来进行管理。
+// 抽象工厂的缺点：
+// 产品族的扩展将是一件十分费力的事情，假如产品族中需要增加一个新的产品，
+// 则几乎所有的工厂类都需要进行修改。所以使用抽象工厂模式时，对产品等级结构的划分是非常重要的。
+
+
+
+
