@@ -32,10 +32,10 @@ DrinkingFountains.prototype.giveMeFuckingWater = function(type) {
     }
 }
 
-// var drinkingFountains = new DrinkingFountains();
-// var waterOfMine = drinkingFountains.giveMeFuckingWater("hot");
+var drinkingFountains = new DrinkingFountains();
+var waterOfMine = drinkingFountains.giveMeFuckingWater("hot");
 
-// console.log(waterOfMine);// boilingWater
+console.log(waterOfMine);// boilingWater
 
 // 简单工厂模式 如上所述 实际上就是根据不同指令 return不同的结果 核心就是包裹一段if else分支成方法
 // 在实际中 用到很多工厂模式 比如react中 根据state不同 return不同的dom 这就属于工厂模式
@@ -90,7 +90,6 @@ var AbstractFactory = (function () {
     };
 })();
 
-
 // 向工厂中添加可生产的种类
 AbstractFactory.registerFactory("coffee", CoffeeMachine);
 AbstractFactory.registerFactory("water", DrinkingFountains);
@@ -106,6 +105,9 @@ AbstractFactory.getFactory("water", "cold");// water {description: "iceWater"}
 // 抽象工厂的缺点：
 // 产品族的扩展将是一件十分费力的事情，假如产品族中需要增加一个新的产品，
 // 则几乎所有的工厂类都需要进行修改。所以使用抽象工厂模式时，对产品等级结构的划分是非常重要的。
+
+// 工厂模式在一些框架开发中很常见 比如react源码中关于virtual dom中的一段就是使用了工厂模式
+// 源码就不附了
 
 
 
