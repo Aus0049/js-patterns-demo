@@ -17,7 +17,7 @@ createMask();
 var mask;
 
 function createMask1() {
-    if (mask) return;
+    if (mask) return mask;
 
     mask = $("<div class='mask'></div>");
 
@@ -46,3 +46,31 @@ createMask3();
 
 // 这次使用了闭包 之前的全局变量变成了函数内部变量 避免了全局污染
 // 可以说上面这么做的模式是单例模式标准的形式 但是过于复杂
+
+// ES6中的单例模式
+
+let __instance = (function () {
+  let instance;
+  return (newInstance) => {
+    if (newInstance) instance = newInstance;
+    return instance;
+  }
+}());
+
+class Universe {
+  constructor() {
+    if (__instance()) return __instance();
+    // 按自己需求实例化
+    this.foo = 'bar';
+    __instance(this);
+  }
+}
+
+let u1 = new Universe();
+let u2 = new Universe();
+
+
+u1.foo; //'bar'
+u1 === u2; //true
+
+// ES6中的单例模式 是通过修改构造器实现每次new出来的对象始终是一个
