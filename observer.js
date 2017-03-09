@@ -88,3 +88,17 @@ console.log("宫保鸡丁上菜了");
 waiter.dispatch("宫保鸡丁" , "小盘宫保鸡丁");
  
 
+// jq中也为发布者订阅者模式提供了接口
+// $().on $().off
+
+function eventWatcher () {
+    console.log("事件触发了");
+}
+
+$(document).on("divEvent", eventWatcher);
+
+$(document).trigger("divEvent");
+
+$(document).off("divEvent");
+
+$(document).trigger("divEvent");
