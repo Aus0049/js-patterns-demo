@@ -98,3 +98,137 @@ function regularCheck(rule, text){
 // 这也算是策略模式的一种使用 
 // 看着当年的代码 当时能找到个实习单位真不容易啊。。。。
 
+// 现在又想了一下 上面代码确实不妥 
+// 新的验证方法如下
+
+const validate = (dataArray) => {
+    // 策略模式
+    for(let i of dataArray){
+        // 有自定义验证规则 则忽略其他规则
+        if(i.customVerify){
+            let customVerifyResult = i.customVerify(i.name, i.value);
+
+            if(customVerifyResult != true){
+                // 有报错
+                return {status: false, name: i.name, error: customVerifyResult};
+            }
+        }
+
+        let text;
+        // 没有自定义规则 常规验证
+        // required
+        if(i.required === true){
+            if(i.value == undefined || i.value == null || i.value == ""){
+                text = i.name + "不能为空!";
+
+                if(i.errorText){
+                    text = i.errorText;
+                }
+
+                return {status: false, name: i.name, error: text};
+            }
+        }
+
+
+        if(i.length === true){
+            if(i.min != undefined && i.max == undefined && typeof i.min == "number"){
+                if(i.value.length < i.min){
+                    text = i.name + "不能少于" + i.min + "个字";
+
+                    if(i.errorText){
+                        text = i.errorText;
+                    }
+
+                    return {status: false, name: i.name, error: text};
+                }
+            }
+
+            if(i.max != undefined && i.min == undefined && typeof i.max == "number"){
+                if(i.value.length > i.max){
+                    text = i.name + "不能超过" + i.max + "个字";
+
+                    if(i.errorText){
+                        text = i.errorText;
+                    }
+
+                    return {status: false, name: i.name, error: text};
+                }
+            }
+
+            if(i.max != undefined && i.min != undefined && typeof i.max == "number" && i.min == "number"){
+                if(i.value.length > i.max || i.value.length < i.min){
+                    text = i.name + "长度应在" + i.min + "~" + i.max + "之间";
+                }
+
+                if(i.errorText){
+                    text = i.errorText;
+                }
+
+                return {status: false, name: i.name, error: text};
+            }
+        }
+
+        // 长度验证 最小
+        if(i.min != undefined && i.max == undefined && typeof i.min == "number"){
+            if(i.value < i.min){
+                text = i.name + "不能小于" + i.min;
+
+                if(i.errorText){
+                    text = i.errorText;
+                }
+
+                return {status: false, name: i.name, error: text};
+            }
+        }
+
+        // 最大
+        if(i.max != undefined && i.min == undefined && typeof i.max == "number"){
+            if(i.value > i.max){
+                text = i.name + "不能超过" + i.max;
+
+                if(i.errorText){
+                    text = i.errorText;
+                }
+
+                return {status: false, name: i.name, error: text};
+            }
+        }
+
+        // 区间
+        if(i.max != undefined && i.min != undefined && typeof i.max == "number" && i.min == "number"){
+            if(i.value > i.max || i.value < i.min){
+                text = i.name + "应在" + i.min + "~" + i.max + "之间";
+            }
+
+            if(i.errorText){
+                text = i.errorText;
+            }
+
+            return {status: false, name: i.name, error: text};
+        }
+    }
+
+    return {status: true};
+};
+
+// 当然里面 还可以再继续优化下 不过思路就是现在这样 
+// 验证种类暂时较少 支持require 长度require 最大最小区间 以及自定义验证规则
+// 自定义验证规则优先级最高
+// 上述验证的使用方法如下
+let this_ = this;
+let { reason, toast, approver} = this.state;
+
+let validate = Validate([
+    {name: "", value: approver, required: true, length: true, min: 1, errorText: "该项审批流尚未开启!"},
+    {name: "销外出原因", value: reason, required: false, length: true, max: 200}
+]);
+
+if(validate.status == true){
+    // ajax
+    this.ajaxSubmit();
+} else {
+    Tools.toastError(toast, this_, validate.error);
+}
+
+// 这样相对于之前第一版的验证 使用起来就简单了很多 而且灵活了很多 
+
