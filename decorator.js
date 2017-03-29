@@ -89,3 +89,66 @@ iphoneWith128GPlusGolden.cost();
 // 然后新建一个具体修饰者类 将抽象修饰器赋值成一个属性 然后在具体修饰者中 仍可以添加方法
 // 也就是iPhone中的this 和 抽象修饰器中的this指向了具体修饰器 所以具体修饰器中的方法 可以被被修饰者调用
 // 就好像iPhone被mixin进了具体修饰者中 
+// 这个例子的关键点在于this指向对象的变化
+
+var tree = {};
+tree.decorate = function () {
+    console.log("Make sure the tree won't fall");
+};
+
+tree.getDecorator = function (deco) {
+    tree[deco].prototype = this;
+    return new tree[deco];
+};
+
+tree.BlueApples = function () {
+    this.decorate = function () {
+        this.BlueApples.prototype.decorate(); // 第1步：先执行原型的decorate方法，也就是tree.decorate()
+        console.log('Put on some blue apples'); // 第2步 再输出blue
+        // 将这2步作为BlueApples的decorate方法
+    }
+};
+
+tree.Angel = function () {
+    this.decorate = function () {
+        this.Angel.prototype.decorate(); // 第4步：先执行原型（这时候是BlueApples了）的decorate方法
+        console.log('An angel on the top'); // 第5步 再输出angel
+        // 将这2步作为Angel的decorate方法
+    }
+};
+
+tree.RedApples = function () {
+    this.decorate = function () {
+        this.RedApples.prototype.decorate(); // 第7步：先执行原型（这时候是Angel了）的decorate方法
+        console.log('Add some red apples'); // 第8步 再输出 red
+        // 将这2步作为RedApples的decorate方法
+    }
+};
+
+tree = tree.getDecorator('BlueApples'); // 第3步：将BlueApples对象赋给tree，这时候父原型里的getDecorator依然可用
+tree = tree.getDecorator('Angel'); // 第6步：将Angel对象赋给tree，这时候父原型的父原型里的getDecorator依然可用
+tree = tree.getDecorator('RedApples'); // 第9步：将RedApples对象赋给tree
+
+tree.decorate(); // 第10步：执行RedApples对象的decorate方法
+//Make sure the tree won't fall
+//Add blue apples
+//An angel on the top
+//Put on some red apples
+
+// 这个例子比较复杂 
+// 首先定义一个tree 是个空对象 
+// 然后给tree添加两个方法
+// 之后给tree添加三个修饰器方法 先不管
+// 这时候的tree有两个方法 和 三个修饰器方法 
+// 看调用tree 按照上面提示的方法来看
+// 首先调用 getDecorator 方法 该方法将 tree[deco]（tree.BlueApples） 的prototype指向自身（tree）
+// 这时候 tree.BlueApples 的原型prototype上就有了 decorate 和 getDecorator 两个方法
+// 然后 new tree.BlueApples 执行 也就先报出 Make sure the tree won't fall
+// 之后报出 Add blue apples
+// 然后 return new tree[deco]; 将new出来的对象 return 出去 又赋值给tree
+// 这时候 tree 其实就是tree.BlueApples 
+// 其有一个 decorate 方法 原型上又有两个方法
+// 这样 通过改变prototype 在没有继承的情况下 实现了向tree方法 添加属性
+// 之后的步骤 道理其实一样
+// 最后调用 tree.decorate() 其实是调用自身的的 decorate 而不是原型链上的decorate
+// 该例子 就是用改变prototype的方法 向对象添加属性
