@@ -50,3 +50,42 @@ iphone.cost(); // 8699 我的天( ⊙ o ⊙ )啊！
 // 这样 3个修饰器 可以生成 3! + 1 = 7种类
 // 按照继承的做法 我们需要定义6个子类 
 // 但是现在我们只要3个修饰器 大大提高效率
+
+// 抽象修饰者模式
+// 上面那个例子是最简单的修饰者模式 
+// 抽象修饰者实际上就是对修饰器的一个再封装
+// 比如上面例子中 将Golden PlusScreen 和Disk 封装成一个修饰器 
+// 就是新的修饰器：终极无敌装逼 iphoneWith128GPlusGolden版
+
+function iPhone () {
+    this.cost = function () {
+        // 调用一个自身不存在的方法
+        this.product();
+        return 4999;
+    }
+}
+
+// 抽象修饰器
+function AbstractDecorator (decorated) {
+    this.cost = function () {
+        return decorated.cost() + 1000 + 1200 + 1500;
+    }
+}
+
+// 具体修饰器
+function ConcreteDecorator (decorated) {
+    this.original = AbstractDecorator;
+    this.original(decorated);
+
+    decorated.product = function () {
+        console.log("原厂iphone 改装。。。");
+    }
+}
+
+var iphone = new iPhone();
+var iphoneWith128GPlusGolden = new ConcreteDecorator(iphone);
+iphoneWith128GPlusGolden.cost();
+// 上面例子可以看到 将3个修饰器组装成了一个抽象修饰者 在其中完成修饰功能
+// 然后新建一个具体修饰者类 将抽象修饰器赋值成一个属性 然后在具体修饰者中 仍可以添加方法
+// 也就是iPhone中的this 和 抽象修饰器中的this指向了具体修饰器 所以具体修饰器中的方法 可以被被修饰者调用
+// 就好像iPhone被mixin进了具体修饰者中 
